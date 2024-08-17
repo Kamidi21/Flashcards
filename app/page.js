@@ -1,16 +1,30 @@
 'use client';
 import { useState } from 'react';
-import { Box, Button, Container, Grid, Typography, AppBar, Toolbar } from '@mui/material';
+import { Container, Box, Button, Grid, Typography, AppBar, Toolbar } from '@mui/material';
+import { useUser } from '@clerk/nextjs'; // Import useUser from Clerk
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Head from 'next/head';
 import getStripe from '@/utils/get-stripe';
 
 export default function Home() {
+  const { isSignedIn } = useUser(); // Use Clerk's useUser hook to check if the user is signed in
+
+  const handleGetStarted = () => {
+    if (isSignedIn) {
+      // If the user is signed in, redirect to the flashcard generation page
+      window.location.href = '/generate';
+    } else {
+      // If the user is not signed in, redirect to the sign-in page
+      window.location.href = '/sign-in';
+    }
+  };
+
   const handleSubmit = async () => {
     const checkoutSession = await fetch('/api/checkout_sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     });
+
     const checkoutSessionJson = await checkoutSession.json();
 
     const stripe = await getStripe();
@@ -54,7 +68,8 @@ export default function Home() {
         <Typography variant="h5" component="h2" gutterBottom>
           The easiest way to create flashcards from your text.
         </Typography>
-        <Button variant="contained" color="primary" sx={{ mt: 2, mr: 2 }} href="/generate">
+        {/* Modify the Get Started button to use handleGetStarted */}
+        <Button variant="contained" color="primary" sx={{ mt: 2, mr: 2 }} onClick={handleGetStarted}>
           Get Started
         </Button>
         <Button variant="outlined" color="primary" sx={{ mt: 2 }}>
@@ -110,4 +125,3 @@ export default function Home() {
     </Container>
   );
 }
-
