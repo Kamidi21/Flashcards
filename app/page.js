@@ -1,31 +1,36 @@
 'use client';
 import { useState } from 'react';
-import { Container, Box, Button, Grid, Typography, AppBar, Toolbar } from '@mui/material';
-import { useUser } from '@clerk/nextjs'; // Import useUser from Clerk
+import { Container, Box, Button, Typography, AppBar, Toolbar, Menu, MenuItem, IconButton } from '@mui/material';
+import { useUser } from '@clerk/nextjs';
 import { SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import Head from 'next/head';
 import getStripe from '@/utils/get-stripe';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 export default function Home() {
-  const { isSignedIn } = useUser(); // Use Clerk's useUser hook to check if the user is signed in
+  const { isSignedIn } = useUser();
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const handleGetStarted = () => {
     if (isSignedIn) {
-      // If the user is signed in, redirect to the flashcard generation page
       window.location.href = '/generate';
     } else {
-      // If the user is not signed in, redirect to the sign-in page
       window.location.href = '/sign-in';
     }
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (planType) => {
     const checkoutSession = await fetch('/api/checkout_sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ planType }), // Pass the selected planType
     });
-
     const checkoutSessionJson = await checkoutSession.json();
+    
+    if (checkoutSession.statuscode === 500) {
+      console.error(checkoutSession.message);
+      return;
+    }
 
     const stripe = await getStripe();
     const { error } = await stripe.redirectToCheckout({
@@ -37,91 +42,159 @@ export default function Home() {
     }
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handlePlanSelect = (planType) => {
+    handleSubmit(planType);
+    handleMenuClose();
+  };
+
   return (
     <Container maxWidth="lg">
       <Head>
-        <title>Flashcard SaaS</title>
-        <meta name="description" content="Create flashcard from your text" />
+        <title>AIFlashLearn</title>
+        <meta name="description" content="Revolutionize Your Learning with AI-Powered Flashcards" />
       </Head>
 
       {/* Header and Navigation */}
-      <AppBar position="static">
+      <AppBar position="static" elevation={0} sx={{ backgroundColor: 'transparent', boxShadow: 'none', pt: 2 }}>
         <Toolbar>
-          <Typography variant="h6" style={{ flexGrow: 1 }}>
-            Flashcard SaaS
+          <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'left', fontWeight: 'bold', color: 'black' }}>
+            AIFlashLearn
           </Typography>
-          <SignedOut>
-            <Button color="inherit" href="/sign-in">Login</Button>
-            <Button color="inherit" href="/sign-up">Sign Up</Button>
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
+
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Button 
+              color="inherit" 
+              href="/" 
+              sx={{ 
+                mr: 2, 
+                backgroundColor: '#9c27b0', 
+                color: 'white', 
+                borderColor: '#9c27b0',
+                '&:hover': { 
+                  backgroundColor: '#7b1fa2', 
+                  borderColor: '#7b1fa2' 
+                } 
+              }}
+            >
+              Home
+            </Button>
+            <Button 
+              color="inherit" 
+              onClick={handleMenuClick} 
+              sx={{ 
+                mr: 2, 
+                backgroundColor: '#9c27b0', 
+                color: 'white', 
+                borderColor: '#9c27b0',
+                display: 'flex',
+                alignItems: 'center',
+                '&:hover': { 
+                  backgroundColor: '#7b1fa2', 
+                  borderColor: '#7b1fa2' 
+                } 
+              }}
+            >
+              Pricing
+              <ArrowDropDownIcon sx={{ ml: 1 }} />
+            </Button>
+            <SignedOut>
+              <Button 
+                color="inherit" 
+                href="/sign-in" 
+                sx={{ 
+                  mr: 2, 
+                  backgroundColor: '#9c27b0', 
+                  color: 'white', 
+                  borderColor: '#9c27b0',
+                  '&:hover': { 
+                    backgroundColor: '#7b1fa2', 
+                    borderColor: '#7b1fa2' 
+                  } 
+                }}
+              >
+                Login
+              </Button>
+              <Button 
+                color="inherit" 
+                href="/sign-up" 
+                sx={{ 
+                  backgroundColor: '#9c27b0', 
+                  color: 'white', 
+                  borderColor: '#9c27b0',
+                  '&:hover': { 
+                    backgroundColor: '#7b1fa2', 
+                    borderColor: '#7b1fa2' 
+                  } 
+                }}
+              >
+                Sign Up
+              </Button>
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </Box>
         </Toolbar>
       </AppBar>
 
-      {/* Hero Section */}
-      <Box sx={{ textAlign: 'center', my: 4 }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          Welcome to Flashcard SaaS
+      {/* Hero Section with Background Image */}
+      <Box
+        sx={{
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundImage: "url('/Home.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      >
+        <Typography
+          variant="h3"
+          component="h1"
+          gutterBottom
+          sx={{ color: 'white', fontWeight: 'bold', textAlign: 'center' }}
+        >
+          Revolutionize Your Learning with AI-Powered Flashcards
         </Typography>
-        <Typography variant="h5" component="h2" gutterBottom>
-          The easiest way to create flashcards from your text.
-        </Typography>
-        {/* Modify the Get Started button to use handleGetStarted */}
-        <Button variant="contained" color="primary" sx={{ mt: 2, mr: 2 }} onClick={handleGetStarted}>
-          Get Started
-        </Button>
-        <Button variant="outlined" color="primary" sx={{ mt: 2 }}>
-          Learn More
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ 
+            mt: 2, 
+            px: 4, 
+            backgroundColor: '#9c27b0', 
+            color: 'white', 
+            '&:hover': { 
+              backgroundColor: '#7b1fa2' 
+            } 
+          }}
+          onClick={handleGetStarted}
+        >
+          Get Started for Free
         </Button>
       </Box>
 
-      {/* Features Section */}
-      <Box sx={{ my: 6 }}>
-        <Typography variant="h4" component="h2" gutterBottom>Features</Typography>
-        <Grid container spacing={4}>
-          {/* Easy Text Input */}
-          {/* Example feature item */}
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6">Easy Text Input</Typography>
-            <Typography>Detail about feature 1.</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6">Smart Flashcards</Typography>
-            <Typography>Detail about feature 2.</Typography>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6">Accessible Anywhere </Typography>
-            <Typography>Detail about feature 3.</Typography>
-          </Grid>
-        </Grid>
-      </Box>
-
-      {/* Pricing Section */}
-      <Box sx={{ my: 6, textAlign: 'center' }}>
-        <Typography variant="h4" component="h2" gutterBottom>Pricing</Typography>
-        <Grid container spacing={4} justifyContent="center">
-          {/* Pricing plans */}
-          {/* Example pricing plan */}
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6">Basic Plan</Typography>
-            <Typography>$0/month</Typography>
-            <Typography>Access to basic Flashcard features with limited storage</Typography>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Subscribe
-            </Button>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Typography variant="h6">Pro Plan</Typography>
-            <Typography>$10/month</Typography>
-            <Typography>Unlimited flashcards and storage, with priority support</Typography>
-            <Button variant="contained" color="primary" onClick={handleSubmit}>
-              Subscribe
-            </Button>
-          </Grid>
-        </Grid>
-      </Box>
+      {/* Pricing Dropdown Menu */}
+      <Menu
+        id="pricing-menu"
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={() => handlePlanSelect('basic')}>Basic Plan - $0/month</MenuItem>
+        <MenuItem onClick={() => handlePlanSelect('pro')}>Pro Plan - $10/month</MenuItem>
+      </Menu>
     </Container>
   );
 }

@@ -1,7 +1,9 @@
 'use client';
+import jsPDF from 'jspdf';
+
 
 import { useState, useEffect } from 'react';
-import { Container, Grid, Card, CardActionArea, CardContent, Typography, Box } from '@mui/material';
+import { Container, Grid, Card, CardActionArea, CardContent, Typography, Box,Button } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, getDocs,getDoc } from 'firebase/firestore';
 import { db } from '@/firebase'; // Update this path according to your project structure
@@ -35,7 +37,22 @@ export default function FlashcardSetPage() {
       [id]: !prev[id],
     }));
   };
-
+  const handleDownload = () => {
+    const doc = new jsPDF();
+  
+    flashcards.forEach((flashcard, index) => {
+      doc.setFontSize(16);
+      doc.text(`Q${index + 1}: ${flashcard.front}`, 10, 10 + (index * 20)); // Question
+      doc.text(`A${index + 1}: ${flashcard.back}`, 10, 20 + (index * 20));  // Answer
+  
+      // Add a new page for every pair of question and answer if needed
+      if (index !== flashcards.length - 1) {
+        doc.addPage();
+      }
+    });
+  
+    doc.save(`flashcards_${search}.pdf`);
+  };
   return (
     <Container maxWidth="md">
       <Grid container spacing={3} sx={{ mt: 4 }}>
@@ -64,6 +81,13 @@ export default function FlashcardSetPage() {
           </Grid>
         ))}
       </Grid>
+      
+      {/* Download Button at the Bottom */}
+      <Box sx={{ textAlign: 'center', mt: 4, mb: 4 }}>
+        <Button variant="contained" color="primary" onClick={handleDownload}>
+          Download Flashcards
+        </Button>
+      </Box>
     </Container>
   );
 }

@@ -9,7 +9,7 @@ export default function SignInPage() {
   return (
     <Container maxWidth="sm">
       {/* Navigation Bar */}
-      <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
+      {/* <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Flashcard SaaS
@@ -25,7 +25,7 @@ export default function SignInPage() {
             </Link>
           </Button>
         </Toolbar>
-      </AppBar>
+      </AppBar> */}
 
       {/* Sign-In Section */}
       <Box

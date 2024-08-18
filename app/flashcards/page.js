@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Container, Grid, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import { Container, Grid, Card, CardActionArea, CardContent, Typography,Box,Button } from '@mui/material';
 import { useUser } from '@clerk/nextjs';
 import { collection, doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/firebase'; // Update this path according to your project structure
@@ -33,6 +33,9 @@ export default function FlashcardsPage() {
   const handleCardClick = (id) => {
     router.push(`/flashcard?id=${id}`);
   };
+  const handleGenerateMore = () => {
+    router.push('/generate'); // Assuming "/generate" is the route to generate more flashcards
+  };
 
   return (
     <Container maxWidth="md">
@@ -51,6 +54,13 @@ export default function FlashcardsPage() {
           </Grid>
         ))}
       </Grid>
+
+      {/* Generate More Flashcards Button */}
+      <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+        <Button variant="contained" color="primary" onClick={handleGenerateMore}>
+          Generate More Flashcards
+        </Button>
+      </Box>
     </Container>
   );
 }
