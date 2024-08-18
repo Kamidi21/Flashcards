@@ -12,7 +12,7 @@ export default function SignUpPage() {
       <AppBar position="static" sx={{ backgroundColor: '#3f51b5' }}>
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Flashcard SaaS
+            AIFlashLearn
           </Typography>
           <Button color="inherit">
             <Link href="/sign-in" passHref>

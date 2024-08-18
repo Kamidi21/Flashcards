@@ -10,6 +10,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 export default function Home() {
   const { isSignedIn } = useUser();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [homeMenuAnchorEl, setHomeMenuAnchorEl] = useState(null);
 
   const handleGetStarted = () => {
     if (isSignedIn) {
@@ -46,13 +47,27 @@ export default function Home() {
     setAnchorEl(event.currentTarget);
   };
 
+  const handleHomeMenuClick = (event) => {
+    setHomeMenuAnchorEl(event.currentTarget);
+  };
+
   const handleMenuClose = () => {
     setAnchorEl(null);
+    setHomeMenuAnchorEl(null);
   };
 
   const handlePlanSelect = (planType) => {
     handleSubmit(planType);
     handleMenuClose();
+  };
+
+  const handleNavigation = (path) => {
+    window.location.href = path;
+    handleHomeMenuClose();
+  };
+
+  const handleHomeMenuClose = () => {
+    setHomeMenuAnchorEl(null);
   };
 
   return (
@@ -70,14 +85,19 @@ export default function Home() {
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Button 
+            <IconButton 
               color="inherit" 
-              href="/" 
+              onClick={handleHomeMenuClick} 
               sx={{ 
                 mr: 2, 
                 backgroundColor: '#9c27b0', 
                 color: 'white', 
                 borderColor: '#9c27b0',
+                display: 'flex',
+                alignItems: 'center',
+                borderRadius: '4px', // Match the Pricing button's borderRadius
+                padding: '6px 16px', // Adjust padding to match Pricing button
+                fontSize: '0.875rem', // Adjust font size to match Pricing button
                 '&:hover': { 
                   backgroundColor: '#7b1fa2', 
                   borderColor: '#7b1fa2' 
@@ -85,7 +105,16 @@ export default function Home() {
               }}
             >
               Home
-            </Button>
+              <ArrowDropDownIcon sx={{ ml: 1 }} />
+            </IconButton>
+            <Menu
+              id="home-menu"
+              anchorEl={homeMenuAnchorEl}
+              open={Boolean(homeMenuAnchorEl)}
+              onClose={handleHomeMenuClose}
+            >
+              <MenuItem onClick={() => handleNavigation('/flashcards')}>Saved Flashcards</MenuItem>
+            </Menu>
             <Button 
               color="inherit" 
               onClick={handleMenuClick} 
@@ -96,6 +125,9 @@ export default function Home() {
                 borderColor: '#9c27b0',
                 display: 'flex',
                 alignItems: 'center',
+                borderRadius: '4px', // Rectangle shape
+                padding: '6px 16px', // Match the size and padding
+                fontSize: '0.875rem', // Match the font size
                 '&:hover': { 
                   backgroundColor: '#7b1fa2', 
                   borderColor: '#7b1fa2' 
@@ -105,6 +137,15 @@ export default function Home() {
               Pricing
               <ArrowDropDownIcon sx={{ ml: 1 }} />
             </Button>
+            <Menu
+              id="pricing-menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={() => handlePlanSelect('basic')}>Basic Plan</MenuItem>
+              <MenuItem onClick={() => handlePlanSelect('pro')}>Pro Plan</MenuItem>
+            </Menu>
             <SignedOut>
               <Button 
                 color="inherit" 
@@ -114,6 +155,7 @@ export default function Home() {
                   backgroundColor: '#9c27b0', 
                   color: 'white', 
                   borderColor: '#9c27b0',
+                  fontSize: '0.875rem', // Match the font size
                   '&:hover': { 
                     backgroundColor: '#7b1fa2', 
                     borderColor: '#7b1fa2' 
@@ -129,6 +171,7 @@ export default function Home() {
                   backgroundColor: '#9c27b0', 
                   color: 'white', 
                   borderColor: '#9c27b0',
+                  fontSize: '0.875rem', // Match the font size
                   '&:hover': { 
                     backgroundColor: '#7b1fa2', 
                     borderColor: '#7b1fa2' 
@@ -184,17 +227,6 @@ export default function Home() {
           Get Started for Free
         </Button>
       </Box>
-
-      {/* Pricing Dropdown Menu */}
-      <Menu
-        id="pricing-menu"
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-      >
-        <MenuItem onClick={() => handlePlanSelect('basic')}>Basic Plan - $0/month</MenuItem>
-        <MenuItem onClick={() => handlePlanSelect('pro')}>Pro Plan - $10/month</MenuItem>
-      </Menu>
     </Container>
   );
 }
