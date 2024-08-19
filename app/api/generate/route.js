@@ -29,7 +29,7 @@ export async function POST(req) {
     const cleanedResponse = response.text().replace(/```json\n?|\n?```/g, '').trim();
     
     const flashcards = JSON.parse(cleanedResponse);
-    return NextResponse.json(flashcards)
+    return NextResponse.json(flashcards);
   } catch (error) {
     console.error("Error in flashcard generation:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
